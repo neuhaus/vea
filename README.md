@@ -13,7 +13,7 @@ Also included is the smarty PHP template engine, licensed under the LGPL license
 
 
 The original README is below.
-
+- - -
 
 This is the first version of vea - virtual email admin written by Felix Wolf &lt;felix AT xis DOT to>.
 This software is under the Apache License v2. Please read the LICENSE file for details.
