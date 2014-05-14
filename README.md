@@ -4,8 +4,8 @@ vea
 Virtual Email Admin
 -------------------
 
-This is vea 0.1, it was released by Felix Wolf around 2010. It's homepage was at http://vea.bar.bz/ but it
-has disappeared from the internet in the meantime. I'm making it available again. 
+This is vea 0.1, it was released by Felix Wolf around 2010. Its homepage was at http://vea.bar.bz/ but it
+has disappeared from the internet in the meantime. I'm making the sourcecode available once again. 
 **Use at your own risk! Make sure you use it only on an encrypted, access controlled website!**
 
 Included in the js directory is a copy of jquery 1.4.2 (minified), which uses the MIT or GPL license.
