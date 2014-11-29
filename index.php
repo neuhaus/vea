@@ -2,22 +2,22 @@
 
 include ('init.php');
 
-if (!$__view) {
+if (!isset($__view) || !$__view) {
 
   $smarty->display('index.tpl');
 
 } elseif ($__view == "domains") {
 
-  $domains = q("select * from virtual_domains");
+  $domains = q($link, "SELECT * FROM virtual_domains");
   $smarty->assign('domains', $domains);
   $smarty->display('domains.tpl');
 
 } elseif ($__view == "domain") {
-
-  $rdomain = q("select * from virtual_domains where name = '" . $__domain . "'");
+  $qdomain = $link->quote($__domain);
+  $rdomain = q($link, "SELECT * FROM virtual_domains WHERE name = $qdomain");
   $domain = $rdomain[0];
-  $users = q("select * from virtual_users where domain_id = '" . $domain['id'] . "' order by email");
-  $aliases = q("select * from virtual_aliases where domain_id = '" . $domain['id'] . "' order by source");
+  $users = q($link, "SELECT * FROM virtual_users WHERE domain_id = '" . $domain['id'] . "' ORDER BY email");
+  $aliases = q($link, "SELECT * FROM virtual_aliases WHERE domain_id = '" . $domain['id'] . "' ORDER BY source");
   $smarty->assign('domain', $domain);
   $smarty->assign('users', $users);
   $smarty->assign('aliases', $aliases);
@@ -25,5 +25,5 @@ if (!$__view) {
 
 }  
 
-mysql_close($link);
+$link = null;
 ?>

@@ -10,27 +10,36 @@ $smarty->compile_dir  = $sitedir . '/smarty/templates_c';
 $smarty->cache_dir    = $sitedir . '/smarty/cache';
 $smarty->config_dir   = $sitedir . '/smarty/configs';
 
-$link = mysql_connect($dbhost, $dbuser, $dbpass) or die('Could not connect: ' . mysql_error());
-mysql_select_db($dbname) or die('Could not select database');
+$link = new PDO("pgsql:host=$dbhost;dbname=$dbname", $dbuser, $dbpass);
+$link->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING); 
+x($link,"SET AUTOCOMMIT = ON");
 
-import_request_variables('pg', '__');
+extract($_REQUEST, EXTR_PREFIX_ALL|EXTR_REFS, '_');
 
-function q($q) {
-  $res = mysql_query($q);
-  if (mysql_error()) {
-    error_log(mysql_error());
-    return (-2);
+function q($link,$q) {
+  try {
+	  $res = $link->query($q);
+  } catch (PDOException $e) {
+	error_log($e->getMessage());
+	return (-2);
   }
   $tabs = array();
-  if ($res == 1) {
-    return(1);
-  }
-  while ($c = mysql_fetch_array($res, MYSQL_ASSOC)) {
+  while ($c = $res->fetch(PDO::FETCH_ASSOC)) {
     array_push($tabs, $c);
   }
-  mysql_free_result($res);
+  $res->closeCursor();
   return($tabs);
 }
 
+function x($link,$q) {
+  try {
+    $res = $link->exec($q);
+    error_log("executed statement OK: " . $q);
+  } catch (PDOException $e) {
+    error_log($e->getMessage());
+    return (-2);
+  }
+  return(1);
+}
 
 ?>
