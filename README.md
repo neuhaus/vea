@@ -17,7 +17,7 @@ News
 vea 0.11 released on 2014-11-29.
 
 This release replaces MySQL with PostgreSQL and adds support for SHA512-CRYPT hashes.
-**New: mcrypt is now required.**
+**New: The PHP modules mcrypt and pgsql are now required.**
 
 The original README is below.
 - - -
