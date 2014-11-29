@@ -14,7 +14,9 @@ Also included is the smarty PHP template engine, licensed under the LGPL license
 News
 ----
 
-This branch contains vea 0.11, it replaces mysql with postgresql and adds support for SHA512-CRYPT hashes.
+vea 0.11 released on 2014-11-29.
+
+This release replaces MySQL with PostgreSQL and adds support for SHA512-CRYPT hashes.
 **New: mcrypt is now required.**
 
 The original README is below.
