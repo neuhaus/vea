@@ -1,5 +1,6 @@
 <html>
  <head>
+  <title>VEA - virtual email admin</title>
   <script type="text/javascript" src="js/jquery-1.4.2.min.js">0;</script>
   <script type="text/javascript" src="js/vea.js">0;</script>
   <link href="vea.css" rel="stylesheet" type="text/css"/>
