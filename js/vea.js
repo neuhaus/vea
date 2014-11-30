@@ -10,13 +10,15 @@ $(document).ready(function() {
     $("#newdomainli").show();
   });
   $("#newdomainsave").live("click", function() {
-    $.getJSON("service.php", { action: "newdomain", domain: $("#newdomaintext").attr("value") }, function(json){
-      if (json.error) {
-        alert(json.error);
-        return false;
-      }
-      updatedomains();
-    });
+    if (confirm("do you really want to add a new domain?")) {
+      $.getJSON("service.php", { action: "newdomain", domain: $("#newdomaintext").attr("value") }, function(json){
+        if (json.error) {
+          alert(json.error);
+          return false;
+        }
+        updatedomains();
+      });
+    }
   });
   $("#newdomaincancel").live("click", function() {
     $("#newdomainbuttonli").show();
