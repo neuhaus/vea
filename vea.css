@@ -55,15 +55,19 @@ button {
   list-style: none;
 }
 
+#domains input {
+  font-size: 13px;
+}
 
 #content {
   padding: 20;
   font-size: 13px;
 }
 
-#content button {
+#content button, #domains button {
   font-size: 13px;
 }
+
 #content input {
   margin-left: 10px;
   font-size: 13px;
@@ -76,6 +80,4 @@ button {
   margin-bottom: 10px;
   list-style: none;
 }
-
-
 
