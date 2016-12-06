@@ -39,6 +39,6 @@ Installation instructions:
 
 Please note:
 ------------
-**This "maybe a bit crappy piece of software" was not devolped with any security thoughts in mind.
+**This "maybe a bit crappy piece of software" was not developed with any security thoughts in mind.
 Make sure you use it with SSL, only accessible in your management LAN or management VPN in
 production environments.**
