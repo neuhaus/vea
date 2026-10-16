@@ -10,6 +10,31 @@ $(function () {
   var currentDomain = "";
   var currentDomainLabel = "";
 
+  // Turn a failed request into a user-visible message, or null when we are
+  // reloading to re-authenticate.
+  function failureMessage(xhr) {
+    // The basic-auth session expired: reload so the browser re-prompts.
+    if (xhr.status === 401) {
+      window.location.reload();
+      return null;
+    }
+    var message = "an error occurred (HTTP " + xhr.status + ") - see the web server error log";
+    try {
+      var json = JSON.parse(xhr.responseText);
+      if (json && json.error) {
+        message = json.error;
+      }
+    } catch (e) {
+      // Not JSON: fall back to a short plain-text body if there is one.
+      var text = (xhr.responseText || "").replace(/\s+/g, " ");
+      text = text.replace(/^\s+|\s+$/g, "");
+      if (text !== "" && text.length <= 120 && text.indexOf("<") === -1) {
+        message = text;
+      }
+    }
+    return message;
+  }
+
   // Send a mutating action to service.php.
   function post(action, data, onSuccess) {
     var payload = $.extend({ action: action, csrf: csrf }, data);
@@ -24,34 +49,37 @@ $(function () {
         }
       })
       .fail(function (xhr) {
-        // The session/basic-auth expired: reload so the browser re-prompts.
-        if (xhr.status === 401) {
-          window.location.reload();
-          return;
+        var message = failureMessage(xhr);
+        if (message) {
+          window.alert(message);
         }
-        var message = "request failed (" + xhr.status + ")";
-        try {
-          var json = JSON.parse(xhr.responseText);
-          if (json && json.error) {
-            message = json.error;
-          }
-        } catch (e) {
-          // response was not JSON; keep the generic message
-        }
-        window.alert(message);
       });
   }
 
   function updateDomains() {
-    $.get("index.php", { view: "domains" }, function (data) {
-      $("#domains").html(data);
-    });
+    $.get("index.php", { view: "domains" })
+      .done(function (data) {
+        $("#domains").html(data);
+      })
+      .fail(function (xhr) {
+        var message = failureMessage(xhr);
+        if (message) {
+          $("#domains").text(message);
+        }
+      });
   }
 
   function updateDomain() {
-    $.get("index.php", { view: "domain", domain: currentDomain }, function (data) {
-      $("#content").html(data);
-    });
+    $.get("index.php", { view: "domain", domain: currentDomain })
+      .done(function (data) {
+        $("#content").html(data);
+      })
+      .fail(function (xhr) {
+        var message = failureMessage(xhr);
+        if (message) {
+          $("#content").text(message);
+        }
+      });
   }
 
   updateDomains();

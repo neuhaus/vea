@@ -362,12 +362,13 @@ function vea_db()
             $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
         } catch (PDOException $e) {
             error_log('vea: database connection failed: ' . $e->getMessage());
+            $message = 'database connection failed - see the web server error log';
             if (vea_wants_json()) {
-                vea_json_error('database unavailable', 500);
+                vea_json_error($message, 500);
             }
             header('HTTP/1.1 500 Internal Server Error');
             header('Content-Type: text/plain; charset=utf-8');
-            exit("500 Internal Server Error\n");
+            exit('500 ' . $message . "\n");
         }
     }
     return $pdo;

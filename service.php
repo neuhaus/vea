@@ -163,8 +163,8 @@ try {
     }
 } catch (PDOException $e) {
     error_log('vea: action "' . $action . '" failed: ' . $e->getMessage());
-    vea_json_error('database error', 500);
+    vea_json_error('database error - see the web server error log', 500);
 } catch (Exception $e) {
     error_log('vea: action "' . $action . '" failed: ' . $e->getMessage());
-    vea_json_error('internal error', 500);
+    vea_json_error('internal error - see the web server error log', 500);
 }
