@@ -33,6 +33,16 @@ button {
   color: #00c0ff;
 }
 
+.is-hidden {
+  display: none;
+}
+
+#auth {
+  margin-top: 10px;
+  color: #8b9294;
+  font-size: 12px;
+}
+
 #mainframe {
   position: absolute;
   top: 50px;
@@ -60,7 +70,7 @@ button {
 }
 
 #content {
-  padding: 20;
+  padding: 20px;
   font-size: 13px;
 }
 

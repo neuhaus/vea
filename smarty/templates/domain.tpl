@@ -1,5 +1,5 @@
 <ul>
-  <li><b>domain:</b> {$domain.name}
+  <li><b>domain:</b> {$domain.label}
     <ul>
       <li><button id="deletedomainbutton" name="{$domain.id}">delete</button></li>
     </ul>
@@ -8,17 +8,17 @@
     <ul>
     {foreach from=$users item=user}
       <li><a href="#" class="userbutton">{$user.email}</a>
-        <ul class="edituser" style="display: none;">
-          <li><button class="changeuserpassword" name="{$user.id}">reset password</button><input type="text"></li>
-          <li><button class="deleteuser" name="{$user.id}">delete user {$user.user}</button></li>
+        <ul class="edituser is-hidden">
+          <li><button class="changeuserpassword" name="{$user.id}">reset password</button><input type="password" autocomplete="new-password"></li>
+          <li><button class="deleteuser" name="{$user.id}">delete user {$user.email}</button></li>
         </ul>
       </li>
     {/foreach}
       <li>
         <button id="newuserbutton">+</button>
-        <ul id="newuser" style="display: none;">
+        <ul id="newuser" class="is-hidden">
           <li>Username: <input type="text" id="newusername"></li>
-          <li>Password: <input type="text" id="newuserpassword"></li>
+          <li>Password: <input type="password" id="newuserpassword" autocomplete="new-password"></li>
           <li><button id="newusersave" name="{$domain.id}">save</button> <button id="newusercancel">cancel</button></li>
         </ul>
       </li>
@@ -28,7 +28,7 @@
     <ul>
     {foreach from=$aliases item=alias}
       <li><a href="#" class="aliasbutton">{$alias.source} - {$alias.destination}</a>
-        <ul class="editalias" style="display: none;">
+        <ul class="editalias is-hidden">
           <li><button class="deletealias" name="{$alias.id}">delete alias {$alias.source}</button></li>
           <li><button class="changealiastarget" name="{$alias.id}">change alias target</button><input type="text"></li>
         </ul>
@@ -36,7 +36,7 @@
     {/foreach}
       <li>
         <button id="newaliasbutton">+</button>
-        <ul id="newalias" style="display: none;">
+        <ul id="newalias" class="is-hidden">
           <li>Alias: <input type="text" id="newaliastext"></li>
           <li>Target: <input type="text" id="newaliastarget"></li>
           <li><button id="newaliassave" name="{$domain.id}">save</button> <button id="newaliascancel">cancel</button></li>

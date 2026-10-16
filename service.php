@@ -1,142 +1,170 @@
 <?php
+/**
+ * vea - JSON service endpoint.
+ *
+ * Every action is a POST carrying a valid CSRF token. All database access uses
+ * bound parameters.
+ */
 
-include ('init.php');
+require __DIR__ . '/init.php';
 
-if ($__action == "newdomain") {
-  $domain = $link->quote($__domain);
-  if (!$domain) {
-    error("no domain name given");
-  }
-  $r = x($link, "INSERT INTO virtual_domains (name) VALUES ($domain)");
-  if ($r == "-2") {
-    error("database error");
-  }
-  msg("added domain " . $domain);
+require_secure_transport();
+require_auth();
 
-} elseif ($__action == "deletedomain") {
-  $domain = $link->quote($__domain);
-  if (!$domain) {
-    error("no domain id given");
-  }
-  $r = x($link, "DELETE FROM virtual_domains WHERE id = $domain" );
-  if ($r == "-2") {
-    error("database error");
-  }
-  $r = x($link, "DELETE FROM virtual_users WHERE domain_id = $domain" );
-  if ($r == "-2") {
-    error("database error");
-  }
-  $r = x($link, "DELETE FROM virtual_aliases WHERE domain_id = $domain" );
-  if ($r == "-2") {
-    error("database error");
-  }
-  msg("deleted domain " . $domain);
-
-} elseif ($__action == "newuser") {
-  $username = $link->quote($__username);
-  if (CRYPT_SHA512 == 1) {
-    // 16 byte salt, base64 from 13 random bytes
-    $salt = substr(base64_encode(mcrypt_create_iv(13, MCRYPT_DEV_URANDOM)), 0, 16);
-    $password = $link->quote('{SHA512-CRYPT}' . crypt($__password, "\$6\$$salt\$"));
-  } else {
-    $password = $link->quote(md5($__password));
-  }
-  $domain   = $link->quote($__domain, PDO::PARAM_INT);
-
-  if (!$domain or !$username or !$__password) {
-    error("not all necessary data given");
-  }
-
-  $r = x($link, "INSERT INTO virtual_users (email, password, domain_id) VALUES ($username,$password,$domain)");
-  if ($r == "-2") {
-    error("database error");
-  }
-  msg("added new user " . $username);
-
-} elseif ($__action == "deleteuser") {
-  $user = $link->quote($__user);
-
-  if (!$user) {
-    error("no user id given");
-  }
-
-  $r = x($link, "DELETE FROM virtual_users WHERE id = $user");
-  if ($r == "-2") {
-    error("database error");
-  }
-  msg("Deleted user with id " . $user);
-
-} elseif ($__action == "changeuserpassword") {
-  $user     = $link->quote($__user);
-  if (CRYPT_SHA512 == 1) {
-    // 16 byte salt, base64 from 13 random bytes
-    $salt = substr(base64_encode(mcrypt_create_iv(13, MCRYPT_DEV_URANDOM)), 0, 16);
-    $password = $link->quote('{SHA512-CRYPT}' . crypt($__password, "\$6\$$salt\$"));
-  } else {
-    $password = $link->quote(md5($__password));
-  }
-
-  if (!$user or !$__password) {
-    error("no userid or password given");
-  }
-
-  $r = x($link, "UPDATE virtual_users SET password = $password WHERE id = $user");
-  if ($r == "-2") {
-    error("database error");
-  }
-  msg("password reset done");
-
-} elseif ($__action == "newalias") {
-  $alias = $link->quote($__alias);
-  $target = $link->quote($__target);
-  $domain = $link->quote($__domain);
-
-  if (!$domain or !$target) {
-    error("not all necessary data given");
-  }
-
-  $r = x($link, "INSERT INTO virtual_aliases (source, destination, domain_id) VALUES ($alias,$target,$domain)");
-  if ($r == "-2") {
-    error("database error");
-  }
-  msg("added new alias " . $alias);
-
-} elseif ($__action == "deletealias") {
-  $alias = $link->quote($__alias);
-
-  if (!$alias) {
-    error("no alias id given");
-  }
-  $r = x($link, "DELETE FROM virtual_aliases WHERE id = $alias");
-  if ($r == "-2") {
-    error("database error");
-  }
-  msg("deleted alias with id " . $alias);
-
-} elseif ($__action == "changealiastarget") {
-  $alias = $link->quote($__alias);
-  $target = $link->quote($__target);
-
-  if (!$alias or !$target) {
-    error("no password given");
-  }
-
-  $r = x($link, "UPDATE virtual_aliases SET destination = $target WHERE id = $alias");
-  if ($r == "-2") {
-    error("database error");
-  }
-  msg("UPDATE done");
+if (!isset($_SERVER['REQUEST_METHOD']) || strtoupper($_SERVER['REQUEST_METHOD']) !== 'POST') {
+    header('Allow: POST');
+    vea_json_error('method not allowed', 405);
 }
 
-$link = null;
+csrf_check();
 
-function msg($msg) {
-  print json_encode(array("msg" => $msg));
+$action = isset($_POST['action']) ? (string) $_POST['action'] : '';
+
+try {
+    if ($action === 'newdomain') {
+        $domain = isset($_POST['domain']) ? trim((string) $_POST['domain']) : '';
+        if (!valid_hostname($domain)) {
+            vea_json_error('invalid domain name', 400);
+        }
+        db_exec('INSERT INTO virtual_domains (name) VALUES (?)', array($domain));
+        vea_json(array('msg' => 'added domain ' . $domain));
+
+    } elseif ($action === 'deletedomain') {
+        $domainId = isset($_POST['domain']) ? (int) $_POST['domain'] : 0;
+        if ($domainId <= 0) {
+            vea_json_error('invalid domain id', 400);
+        }
+
+        $pdo = vea_db();
+        $pdo->beginTransaction();
+        try {
+            db_exec('DELETE FROM virtual_users WHERE domain_id = ?', array($domainId));
+            db_exec('DELETE FROM virtual_aliases WHERE domain_id = ?', array($domainId));
+            $deleted = db_exec('DELETE FROM virtual_domains WHERE id = ?', array($domainId));
+            $pdo->commit();
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+
+        if ($deleted < 1) {
+            vea_json_error('domain not found', 404);
+        }
+        vea_json(array('msg' => 'deleted domain'));
+
+    } elseif ($action === 'newuser') {
+        $email = isset($_POST['username']) ? trim((string) $_POST['username']) : '';
+        $password = isset($_POST['password']) ? (string) $_POST['password'] : '';
+        $domainId = isset($_POST['domain']) ? (int) $_POST['domain'] : 0;
+
+        if (!valid_email($email)) {
+            vea_json_error('invalid email address', 400);
+        }
+        if (strlen($password) < 8) {
+            vea_json_error('password must be at least 8 characters', 400);
+        }
+        if ($domainId <= 0) {
+            vea_json_error('invalid domain id', 400);
+        }
+
+        $hash = hash_mail_password($password);
+        db_exec(
+            'INSERT INTO virtual_users (email, password, domain_id) VALUES (?, ?, ?)',
+            array($email, $hash, $domainId)
+        );
+        vea_json(array('msg' => 'added new user ' . $email));
+
+    } elseif ($action === 'deleteuser') {
+        $userId = isset($_POST['user']) ? (int) $_POST['user'] : 0;
+        if ($userId <= 0) {
+            vea_json_error('invalid user id', 400);
+        }
+        $deleted = db_exec('DELETE FROM virtual_users WHERE id = ?', array($userId));
+        if ($deleted < 1) {
+            vea_json_error('user not found', 404);
+        }
+        vea_json(array('msg' => 'deleted user'));
+
+    } elseif ($action === 'changeuserpassword') {
+        $userId = isset($_POST['user']) ? (int) $_POST['user'] : 0;
+        $password = isset($_POST['password']) ? (string) $_POST['password'] : '';
+
+        if ($userId <= 0) {
+            vea_json_error('invalid user id', 400);
+        }
+        if (strlen($password) < 8) {
+            vea_json_error('password must be at least 8 characters', 400);
+        }
+
+        $hash = hash_mail_password($password);
+        $updated = db_exec(
+            'UPDATE virtual_users SET password = ? WHERE id = ?',
+            array($hash, $userId)
+        );
+        if ($updated < 1) {
+            vea_json_error('user not found', 404);
+        }
+        vea_json(array('msg' => 'password reset done'));
+
+    } elseif ($action === 'newalias') {
+        $source = isset($_POST['alias']) ? trim((string) $_POST['alias']) : '';
+        $target = isset($_POST['target']) ? trim((string) $_POST['target']) : '';
+        $domainId = isset($_POST['domain']) ? (int) $_POST['domain'] : 0;
+
+        if (!valid_email($source)) {
+            vea_json_error('invalid alias source address', 400);
+        }
+        if (!valid_email($target)) {
+            vea_json_error('invalid alias target address', 400);
+        }
+        if ($domainId <= 0) {
+            vea_json_error('invalid domain id', 400);
+        }
+
+        db_exec(
+            'INSERT INTO virtual_aliases (source, destination, domain_id) VALUES (?, ?, ?)',
+            array($source, $target, $domainId)
+        );
+        vea_json(array('msg' => 'added new alias ' . $source));
+
+    } elseif ($action === 'deletealias') {
+        $aliasId = isset($_POST['alias']) ? (int) $_POST['alias'] : 0;
+        if ($aliasId <= 0) {
+            vea_json_error('invalid alias id', 400);
+        }
+        $deleted = db_exec('DELETE FROM virtual_aliases WHERE id = ?', array($aliasId));
+        if ($deleted < 1) {
+            vea_json_error('alias not found', 404);
+        }
+        vea_json(array('msg' => 'deleted alias'));
+
+    } elseif ($action === 'changealiastarget') {
+        $aliasId = isset($_POST['alias']) ? (int) $_POST['alias'] : 0;
+        $target = isset($_POST['target']) ? trim((string) $_POST['target']) : '';
+
+        if ($aliasId <= 0) {
+            vea_json_error('invalid alias id', 400);
+        }
+        if (!valid_email($target)) {
+            vea_json_error('invalid alias target address', 400);
+        }
+
+        $updated = db_exec(
+            'UPDATE virtual_aliases SET destination = ? WHERE id = ?',
+            array($target, $aliasId)
+        );
+        if ($updated < 1) {
+            vea_json_error('alias not found', 404);
+        }
+        vea_json(array('msg' => 'UPDATE done'));
+
+    } else {
+        vea_json_error('unknown action', 400);
+    }
+} catch (PDOException $e) {
+    error_log('vea: action "' . $action . '" failed: ' . $e->getMessage());
+    vea_json_error('database error', 500);
+} catch (Exception $e) {
+    error_log('vea: action "' . $action . '" failed: ' . $e->getMessage());
+    vea_json_error('internal error', 500);
 }
-
-function error($msg) {
-  print json_encode(array("error" => $msg));
-  exit;
-}
-
-?>

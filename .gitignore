@@ -1,0 +1,10 @@
+# Local secrets and installation-specific configuration.
+.env
+
+# Compiled Smarty templates / cache (regenerated automatically).
+smarty/templates_c/*
+!smarty/templates_c/.gitignore
+smarty/cache/*
+!smarty/cache/.gitignore
+smarty/configs/*
+!smarty/configs/.gitignore

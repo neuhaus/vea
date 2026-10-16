@@ -1,1 +1,34 @@
+# vea - Apache configuration.
+#
+# Requires "AllowOverride All" (or at least FileInfo AuthConfig Options) for the
+# vea directory in the vhost configuration. The application also enforces
+# HTTPS/localhost access and HTTP Basic authentication itself.
+
 DirectoryIndex index.php
+
+# Never list directory contents.
+Options -Indexes
+
+# --- Security headers --------------------------------------------------
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "no-referrer"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
+    # Do not advertise the interpreter version.
+    Header unset X-Powered-By
+    # HSTS is only meaningful (and only sent) over HTTPS.
+    Header always set Strict-Transport-Security "max-age=31536000" env=HTTPS
+</IfModule>
+
+# --- Do not serve configuration, dotfiles (.env, .htaccess, ...) or docs ---
+<FilesMatch "(^\.|^(config|init|compat|idna|view)\.php$|^(README|LICENCE)|\.(md|txt|json|lock|log|sql|ini|dist)$)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
