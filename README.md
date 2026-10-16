@@ -61,7 +61,7 @@ Installation
 
    vea runs with Smarty's compile check disabled, so the compiled templates
    under `smarty/templates_c/` only need to be readable by the web server and
-   never writable. See "Precompiling templates" below.
+   never writable.
 
 4. Create the configuration `.env` file from the example and set at least the
    database password:
@@ -105,30 +105,6 @@ Installation
    `tools/`, dotfiles, `config.php`, `init.php`, `compat.php`, `idna.php` and
    `view.php`, and add the security headers. Otherwise the Smarty templates and
    compiled templates under `smarty/` could be served as plain text.
-
-
-Precompiling templates
-----------------------
-
-Smarty is a compiling engine: it turns each `.tpl` file into a PHP script in
-`smarty/templates_c/` before it can be rendered. vea ships with
-`compile_check` disabled and expects those files to be precompiled, which lets
-the application run with a read-only compile directory (no writable directory
-full of PHP inside the web root, and no runtime compilation):
-
-    php tools/compile-templates.php
-
-This must be run once on a fresh install, and again after any deploy that
-changes a template. Compiled templates are generated files and are not shipped
-(they are ignored by git), so a directory that has never been precompiled is
-empty and the application cannot render. Deploys that do not touch a template
-can skip it. Run it as a user that can write `smarty/templates_c/`, then lock
-the directory down again.
-
-While actively editing templates, either re-run the command after each change
-or set `VEA_COMPILE_CHECK=1` (and keep `smarty/templates_c/` writable) so
-Smarty recompiles changed templates automatically. Leave it unset in
-production.
 
 
 Security model
