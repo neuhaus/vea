@@ -12,7 +12,7 @@ jobs:
       PHPCS_VERSION: 3.13.2
       PHPCOMPAT_VERSION: 9.3.5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -40,10 +40,10 @@ jobs:
     name: JS syntax
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
 
       - run: node --check js/vea.js
