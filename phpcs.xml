@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<ruleset name="vea">
+    <description>
+        Static checks for vea. The code must keep running on PHP 5.5.9, so
+        PHPCompatibility is run with an minimum version of 5.5. Only the
+        application's own files are checked; the vendored Smarty library and
+        the bundled jQuery are ignored.
+    </description>
+
+    <file>compat.php</file>
+    <file>idna.php</file>
+    <file>config.php</file>
+    <file>init.php</file>
+    <file>index.php</file>
+    <file>service.php</file>
+    <file>view.php</file>
+    <file>tools/compile-templates.php</file>
+    <file>tests/selfcheck.php</file>
+
+    <exclude-pattern>*/smarty/*</exclude-pattern>
+
+    <config name="testVersion" value="5.5-"/>
+
+    <rule ref="PHPCompatibility">
+        <!-- Provided by compat.php on PHP < 5.6 / < 7.0. -->
+        <exclude name="PHPCompatibility.FunctionUse.NewFunctions.random_bytesFound"/>
+        <exclude name="PHPCompatibility.FunctionUse.NewFunctions.hash_equalsFound"/>
+        <!-- session.use_strict_mode exists since 5.5.2 (we require 5.5.9);
+             session.cookie_samesite is a guarded, @-suppressed no-op below 7.3. -->
+        <exclude name="PHPCompatibility.IniDirectives.NewIniDirectives.session_use_strict_modeFound"/>
+        <exclude name="PHPCompatibility.IniDirectives.NewIniDirectives.session_cookie_samesiteFound"/>
+    </rule>
+</ruleset>
