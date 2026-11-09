@@ -215,7 +215,10 @@ $(function () {
   });
 
   $(document).on("click", ".deletealias", function () {
-    if (!window.confirm("do you really want to delete the alias?")) {
+    var source = $(this).attr("data-source") || "";
+    var destination = $(this).attr("data-destination") || "this recipient";
+    var what = source ? (destination + " from " + source) : destination;
+    if (!window.confirm("do you really want to delete " + what + "?")) {
       return;
     }
     post("deletealias", { alias: $(this).attr("name") }, function () {

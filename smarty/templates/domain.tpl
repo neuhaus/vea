@@ -31,7 +31,7 @@
         <ul class="editalias is-hidden">
           <li><button class="changealiassource" name="{$alias.id}">change alias address</button><input type="text" value="{$alias.source_local}"> @ {$domain.name}</li>
           <li><button class="changealiastarget" name="{$alias.id}">change alias target</button><input type="text" value="{$alias.destination}"></li>
-          <li><button class="deletealias" name="{$alias.id}">delete alias {$alias.source}</button></li>
+          <li><button class="deletealias" name="{$alias.id}" data-source="{$alias.source}" data-destination="{$alias.destination}">delete recipient {$alias.destination}</button></li>
         </ul>
       </li>
     {/foreach}
