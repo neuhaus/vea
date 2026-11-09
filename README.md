@@ -30,7 +30,7 @@ hardened and its dependencies brought up to date. See "Security model" and
 Version
 -------
 
-**0.12** - hardened release. Replaces the previous 0.11 line: current Smarty
+**0.13** - hardened release. Replaces the previous 0.11 line: current Smarty
 and jQuery releases, SHA512-CRYPT password hashing only, and enforced HTTP
 Basic authentication plus CSRF protection.
 
