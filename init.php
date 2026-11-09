@@ -418,6 +418,32 @@ function vea_domain_name($id)
     return count($rows) > 0 ? $rows[0]['name'] : null;
 }
 
+/**
+ * Tag alias rows with an alternating "tone" (0 or 1) per distinct source.
+ *
+ * An alias with several recipients is stored as several rows sharing a
+ * source; alternating per source lets the list group them visually. Rows are
+ * expected to be ordered by source.
+ *
+ * @param  array $aliases
+ * @return array the same rows, each with a "tone" key added
+ */
+function vea_alias_tones($aliases)
+{
+    $previousSource = null;
+    $tone = 0;
+    $result = array();
+    foreach ($aliases as $row) {
+        if ($row['source'] !== $previousSource) {
+            $tone = 1 - $tone;
+            $previousSource = $row['source'];
+        }
+        $row['tone'] = $tone;
+        $result[] = $row;
+    }
+    return $result;
+}
+
 /* ---------------------------------------------------------------------- */
 /* Mail password hashing (Dovecot-compatible)                             */
 /* ---------------------------------------------------------------------- */

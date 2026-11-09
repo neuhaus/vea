@@ -84,5 +84,21 @@ $raw = substr($hash, strlen('{SHA512-CRYPT}'));
 t('hash prefix', strpos($hash, '{SHA512-CRYPT}$6$'), 0);
 t('hash verifies', crypt('secret123', $raw) === $raw, true);
 
+/* --- alias tone grouping --------------------------------------------- */
+
+t('tones empty', vea_alias_tones(array()), array());
+t('tones single', vea_alias_tones(array(array('source' => 'a'))), array(array('source' => 'a', 'tone' => 1)));
+t('tones grouped', vea_alias_tones(array(
+    array('source' => 'a'), array('source' => 'a'), array('source' => 'b'),
+)), array(
+    array('source' => 'a', 'tone' => 1), array('source' => 'a', 'tone' => 1), array('source' => 'b', 'tone' => 0),
+));
+t('tones alternating', vea_alias_tones(array(
+    array('source' => 'a'), array('source' => 'b'), array('source' => 'b'), array('source' => 'c'),
+)), array(
+    array('source' => 'a', 'tone' => 1), array('source' => 'b', 'tone' => 0),
+    array('source' => 'b', 'tone' => 0), array('source' => 'c', 'tone' => 1),
+));
+
 echo $checks . ' checks, ' . $failures . " failures\n";
 exit($failures === 0 ? 0 : 1);

@@ -116,3 +116,14 @@ button {
   list-style: none;
 }
 
+/* Aliases with more than one recipient are several rows sharing a source;
+   alternate the colour per distinct source to make the groups readable.
+   (Specificity beats a:link/a:visited so the colour actually applies.) */
+#content a.alias-tone0 {
+  color: #EDEDED;
+}
+
+#content a.alias-tone1 {
+  color: #00c0ff;
+}
+

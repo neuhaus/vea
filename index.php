@@ -78,7 +78,7 @@ if ($view === 'domain') {
             array($domainId)
         );
         $aliases = db_query(
-            'SELECT id, source, destination FROM virtual_aliases WHERE domain_id = ? ORDER BY source',
+            'SELECT id, source, destination FROM virtual_aliases WHERE domain_id = ? ORDER BY source, destination',
             array($domainId)
         );
     } catch (PDOException $e) {
@@ -86,6 +86,11 @@ if ($view === 'domain') {
         $users = array();
         $aliases = array();
     }
+
+    // An alias with several recipients is stored as several rows sharing a
+    // source; alternate a colour per distinct source so the groups are easy
+    // to tell apart.
+    $aliases = vea_alias_tones($aliases);
 
     $smarty->assign('domain', $domain);
     $smarty->assign('users', $users);
