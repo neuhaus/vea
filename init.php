@@ -406,6 +406,18 @@ function db_exec($sql, $params = array())
     return $count;
 }
 
+/**
+ * Look up the name of a domain by id.
+ *
+ * @param  int         $id
+ * @return string|null the domain name, or null when it does not exist
+ */
+function vea_domain_name($id)
+{
+    $rows = db_query('SELECT name FROM virtual_domains WHERE id = ?', array((int) $id));
+    return count($rows) > 0 ? $rows[0]['name'] : null;
+}
+
 /* ---------------------------------------------------------------------- */
 /* Mail password hashing (Dovecot-compatible)                             */
 /* ---------------------------------------------------------------------- */
@@ -486,4 +498,57 @@ function valid_email($email)
         return false;
     }
     return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+}
+
+/**
+ * Validate the local part of an email address.
+ *
+ * The domain is supplied by the application (the domain being edited), so only
+ * the local part needs checking here. Doing it this way also allows domains
+ * without a dot, which FILTER_VALIDATE_EMAIL would reject.
+ *
+ * @param  mixed $local
+ * @return bool
+ */
+function valid_local_part($local)
+{
+    if (!is_string($local) || $local === '' || strlen($local) > 64) {
+        return false;
+    }
+    return preg_match('@^[A-Za-z0-9!#$%&\'*+/=?^_`{|}~-]+(\.[A-Za-z0-9!#$%&\'*+/=?^_`{|}~-]+)*$@', $local) === 1;
+}
+
+/**
+ * Build the address "<local>@<domain>" for a domain being edited.
+ *
+ * Accepts either a bare local part ("jane") or a full address on the same
+ * domain ("jane@example.com"). An address on any other domain is rejected, so
+ * a user or alias can never be attached to the wrong domain.
+ *
+ * @param  string       $input  user supplied local part or address
+ * @param  string       $domain the canonical domain name
+ * @return string|bool  the built address, or false when invalid
+ */
+function vea_address_in_domain($input, $domain)
+{
+    $input = trim((string) $input);
+    if ($input === '' || $domain === '') {
+        return false;
+    }
+
+    $at = strrpos($input, '@');
+    if ($at === false) {
+        $local = $input;
+    } else {
+        $local = substr($input, 0, $at);
+        $givenDomain = substr($input, $at + 1);
+        if (strcasecmp($givenDomain, $domain) !== 0) {
+            return false;
+        }
+    }
+
+    if (!valid_local_part($local)) {
+        return false;
+    }
+    return $local . '@' . $domain;
 }

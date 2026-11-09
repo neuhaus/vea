@@ -17,7 +17,7 @@
       <li>
         <button id="newuserbutton">+</button>
         <ul id="newuser" class="is-hidden">
-          <li>Username: <input type="text" id="newusername"></li>
+          <li>Username: <input type="text" id="newusername"> @ {$domain.name}</li>
           <li>Password: <input type="password" id="newuserpassword" autocomplete="new-password"></li>
           <li><button id="newusersave" name="{$domain.id}">save</button> <button id="newusercancel">cancel</button></li>
         </ul>
@@ -37,7 +37,7 @@
       <li>
         <button id="newaliasbutton">+</button>
         <ul id="newalias" class="is-hidden">
-          <li>Alias: <input type="text" id="newaliastext"></li>
+          <li>Alias: <input type="text" id="newaliastext"> @ {$domain.name}</li>
           <li>Target: <input type="text" id="newaliastarget"></li>
           <li><button id="newaliassave" name="{$domain.id}">save</button> <button id="newaliascancel">cancel</button></li>
         </ul>

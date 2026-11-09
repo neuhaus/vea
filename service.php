@@ -53,18 +53,25 @@ try {
         vea_json(array('msg' => 'deleted domain'));
 
     } elseif ($action === 'newuser') {
-        $email = isset($_POST['username']) ? trim((string) $_POST['username']) : '';
+        $username = isset($_POST['username']) ? trim((string) $_POST['username']) : '';
         $password = isset($_POST['password']) ? (string) $_POST['password'] : '';
         $domainId = isset($_POST['domain']) ? (int) $_POST['domain'] : 0;
 
-        if (!valid_email($email)) {
-            vea_json_error('invalid email address', 400);
+        if ($domainId <= 0) {
+            vea_json_error('invalid domain id', 400);
         }
         if (strlen($password) < 8) {
             vea_json_error('password must be at least 8 characters', 400);
         }
-        if ($domainId <= 0) {
-            vea_json_error('invalid domain id', 400);
+
+        $domainName = vea_domain_name($domainId);
+        if ($domainName === null) {
+            vea_json_error('domain not found', 404);
+        }
+
+        $email = vea_address_in_domain($username, $domainName);
+        if ($email === false) {
+            vea_json_error('the user address must be within ' . $domainName, 400);
         }
 
         $hash = hash_mail_password($password);
@@ -111,21 +118,28 @@ try {
         $target = isset($_POST['target']) ? trim((string) $_POST['target']) : '';
         $domainId = isset($_POST['domain']) ? (int) $_POST['domain'] : 0;
 
-        if (!valid_email($source)) {
-            vea_json_error('invalid alias source address', 400);
+        if ($domainId <= 0) {
+            vea_json_error('invalid domain id', 400);
         }
         if (!valid_email($target)) {
             vea_json_error('invalid alias target address', 400);
         }
-        if ($domainId <= 0) {
-            vea_json_error('invalid domain id', 400);
+
+        $domainName = vea_domain_name($domainId);
+        if ($domainName === null) {
+            vea_json_error('domain not found', 404);
+        }
+
+        $aliasSource = vea_address_in_domain($source, $domainName);
+        if ($aliasSource === false) {
+            vea_json_error('the alias address must be within ' . $domainName, 400);
         }
 
         db_exec(
             'INSERT INTO virtual_aliases (source, destination, domain_id) VALUES (?, ?, ?)',
-            array($source, $target, $domainId)
+            array($aliasSource, $target, $domainId)
         );
-        vea_json(array('msg' => 'added new alias ' . $source));
+        vea_json(array('msg' => 'added new alias ' . $aliasSource));
 
     } elseif ($action === 'deletealias') {
         $aliasId = isset($_POST['alias']) ? (int) $_POST['alias'] : 0;
