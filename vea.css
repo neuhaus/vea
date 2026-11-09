@@ -69,6 +69,12 @@ button {
   list-style: none;
 }
 
+/* "#domains *" (an id + universal selector) out-specifies ".is-hidden", so
+   re-assert hiding here or the new-domain row is never hidden. */
+#domains .is-hidden {
+  display: none;
+}
+
 #domains .domainbutton {
   display: inline-block;
   padding: 3px 8px;
