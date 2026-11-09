@@ -29,8 +29,12 @@ h1 {
 }
 button {
   background: #2e3436;
-  border: 0;
+  border: 1px solid #4c5153;
+  border-radius: 6px;
+  padding: 2px 8px;
+  margin: 4px 0;
   color: #00c0ff;
+  cursor: pointer;
 }
 
 .is-hidden {
@@ -71,6 +75,13 @@ button {
   margin: 2px 4px 2px 0;
   border: 1px solid #4c5153;
   border-radius: 6px;
+}
+
+/* Override "#domains *" (which zeroes padding/margin and forces inline). */
+#domains button {
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 2px 4px 2px 0;
 }
 
 #domains input {
