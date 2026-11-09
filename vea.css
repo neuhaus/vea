@@ -53,7 +53,7 @@ button {
   width: 900px;
   left: 50%;
   margin-left: -450px;
-  background: #2e3436;
+  background: #141c1e; /* rgb(20, 28, 30) */
   padding: 30px;
   border: 1px solid #4c5153;
 }
@@ -120,10 +120,10 @@ button {
    alternate the colour per distinct source to make the groups readable.
    (Specificity beats a:link/a:visited so the colour actually applies.) */
 #content a.alias-tone0 {
-  color: #EDEDED;
+  color: #d7d7d7; /* rgb(215, 215, 215) */
 }
 
 #content a.alias-tone1 {
-  color: #00c0ff;
+  color: #ffffff; /* rgb(255, 255, 255) */
 }
 
