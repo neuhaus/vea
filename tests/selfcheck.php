@@ -70,6 +70,12 @@ t('reject double dot', vea_address_in_domain('a..b', 'example.com'), false);
 t('reject double at', vea_address_in_domain('a@b@example.com', 'example.com'), false);
 t('reject empty domain', vea_address_in_domain('jane', ''), false);
 
+t('local part', vea_local_part('jane@example.com', 'example.com'), 'jane');
+t('local part case-insensitive', vea_local_part('jane@EXAMPLE.com', 'example.com'), 'jane');
+t('local part other domain unchanged', vea_local_part('jane@other.com', 'example.com'), 'jane@other.com');
+t('local part without domain', vea_local_part('jane', 'example.com'), 'jane');
+t('local part empty domain', vea_local_part('jane@example.com', ''), 'jane@example.com');
+
 /* --- validation and hashing ----------------------------------------- */
 
 t('hostname valid', valid_hostname('sub.mail.example.com'), true);

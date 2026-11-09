@@ -578,3 +578,26 @@ function vea_address_in_domain($input, $domain)
     }
     return $local . '@' . $domain;
 }
+
+/**
+ * Return the local part of an address that belongs to $domain.
+ *
+ * Used to prefill "change" inputs with just the part the admin edits.
+ * Anything that is not an address in $domain is returned unchanged.
+ *
+ * @param  string $address
+ * @param  string $domain
+ * @return string
+ */
+function vea_local_part($address, $domain)
+{
+    $address = (string) $address;
+    $suffix = '@' . $domain;
+    if ($domain === '' || strlen($address) <= strlen($suffix)) {
+        return $address;
+    }
+    if (strcasecmp(substr($address, -strlen($suffix)), $suffix) === 0) {
+        return substr($address, 0, -strlen($suffix));
+    }
+    return $address;
+}

@@ -29,8 +29,9 @@
     {foreach from=$aliases item=alias}
       <li><a href="#" class="aliasbutton alias-tone{$alias.tone}">{$alias.source} &rarr; {$alias.destination}</a>
         <ul class="editalias is-hidden">
+          <li><button class="changealiassource" name="{$alias.id}">change alias address</button><input type="text" value="{$alias.source_local}"> @ {$domain.name}</li>
+          <li><button class="changealiastarget" name="{$alias.id}">change alias target</button><input type="text" value="{$alias.destination}"></li>
           <li><button class="deletealias" name="{$alias.id}">delete alias {$alias.source}</button></li>
-          <li><button class="changealiastarget" name="{$alias.id}">change alias target</button><input type="text"></li>
         </ul>
       </li>
     {/foreach}

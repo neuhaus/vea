@@ -141,6 +141,40 @@ try {
         );
         vea_json(array('msg' => 'added new alias ' . $aliasSource));
 
+    } elseif ($action === 'changealiassource') {
+        $aliasId = isset($_POST['alias']) ? (int) $_POST['alias'] : 0;
+        $source = isset($_POST['source']) ? trim((string) $_POST['source']) : '';
+
+        if ($aliasId <= 0) {
+            vea_json_error('invalid alias id', 400);
+        }
+
+        // The new address must stay within the domain this alias belongs to,
+        // so resolve the domain from the row rather than trusting the client.
+        $rows = db_query('SELECT domain_id FROM virtual_aliases WHERE id = ?', array($aliasId));
+        if (count($rows) === 0) {
+            vea_json_error('alias not found', 404);
+        }
+
+        $domainName = vea_domain_name($rows[0]['domain_id']);
+        if ($domainName === null) {
+            vea_json_error('domain not found', 404);
+        }
+
+        $aliasSource = vea_address_in_domain($source, $domainName);
+        if ($aliasSource === false) {
+            vea_json_error('the alias address must be within ' . $domainName, 400);
+        }
+
+        $updated = db_exec(
+            'UPDATE virtual_aliases SET source = ? WHERE id = ?',
+            array($aliasSource, $aliasId)
+        );
+        if ($updated < 1) {
+            vea_json_error('alias not found', 404);
+        }
+        vea_json(array('msg' => 'alias address changed to ' . $aliasSource));
+
     } elseif ($action === 'deletealias') {
         $aliasId = isset($_POST['alias']) ? (int) $_POST['alias'] : 0;
         if ($aliasId <= 0) {

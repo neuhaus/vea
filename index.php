@@ -92,6 +92,11 @@ if ($view === 'domain') {
     // to tell apart.
     $aliases = vea_alias_tones($aliases);
 
+    // Prefill the "change alias address" input with the current local part.
+    foreach ($aliases as $index => $row) {
+        $aliases[$index]['source_local'] = vea_local_part($row['source'], $domain['name']);
+    }
+
     $smarty->assign('domain', $domain);
     $smarty->assign('users', $users);
     $smarty->assign('aliases', $aliases);

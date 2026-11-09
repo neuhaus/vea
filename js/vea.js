@@ -223,6 +223,18 @@ $(function () {
     });
   });
 
+  $(document).on("click", ".changealiassource", function () {
+    if (!window.confirm("do you really want to change the alias address?")) {
+      return;
+    }
+    post("changealiassource", {
+      alias: $(this).attr("name"),
+      source: $(this).next("input").val()
+    }, function () {
+      updateDomain();
+    });
+  });
+
   $(document).on("click", ".changealiastarget", function () {
     if (!window.confirm("do you really want to change the alias target?")) {
       return;
