@@ -65,6 +65,14 @@ button {
   list-style: none;
 }
 
+#domains .domainbutton {
+  display: inline-block;
+  padding: 3px 8px;
+  margin: 2px 4px 2px 0;
+  border: 1px solid #4c5153;
+  border-radius: 6px;
+}
+
 #domains input {
   font-size: 13px;
 }
